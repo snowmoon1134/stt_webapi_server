@@ -1,80 +1,40 @@
 # STT Web API Server
-
 Whisperモデルを使用した音声認識（Speech-to-Text）Web APIサーバーです。
+https://github.com/nyosegawa/local-simple-realtime-api の `server_stt.py` を拝借し、Dockerで動作するようにしたコードです。
+
+以下の機能を追加しています
+- Dockerfile(CPU版、GPU版)を追加
+- dockerビルド時に、特定のSTTモデルファイルをダウンロードするスクリプトを追加
+    - これにより、docker run するとすぐSTTサーバが立ち上がります
 
 ## 機能
-
 - 音声ファイルからの文字起こし（`/stt/file`エンドポイント）
 - 音声データのバイト列からの文字起こし（`/stt/bytes`エンドポイント）
-- 日本語を含む複数言語に対応
 
 ## 必要条件
-
 - Python 3.8以上
 - uv（依存関係管理用）
 - Docker（コンテナ実行用）
 
-## ローカル環境での起動方法
+## How to Run
 
-### uvを使用する場合
-
-1. uvのインストール
-```bash
-pip install uv
+```
+# dockerイメージビルド
+docker build -t stt_webapi_server .
+# docker起動
+docker run --rm -it -p 8001:8001 stt_webapi_server
 ```
 
-2. 依存関係のインストール
-```bash
-uv pip install --system -e .
+### Run with NVIDIA GPU
+NVIDIA Container Toolkitは事前導入
+
 ```
+docker build -t stt_webapi_server -f Dockerfile.gpu .
 
-3. サーバーの起動
-```bash
-python app/server.py
+# CUDAがGPUを認識しているか事前チェック
+docker run --rm -it --entrypoint="python" --gpus=all stt_webapi_server '-c' 'import torch;print(torch.cuda.is_available())'
+# Trueと出ていたら認識している
+
+# サーバ起動
+docker run --rm -it -p 8001:8001 --gpus=all stt_webapi_server
 ```
-
-### Dockerを使用する場合
-
-1. Dockerイメージのビルド
-```bash
-docker build -t stt-webapi-server .
-```
-
-2. コンテナの起動
-```bash
-docker run -p 8001:8001 stt-webapi-server
-```
-
-## APIエンドポイント
-
-### 1. 音声ファイルからの文字起こし
-
-**エンドポイント**: `/stt/file`  
-**メソッド**: POST  
-**パラメータ**:
-- `file`: 音声ファイル（multipart/form-data）
-- `language`: 言語（デフォルト: "japanese"）
-
-**使用例**:
-```bash
-curl -X POST -F "file=@audio.wav" -F "language=japanese" http://localhost:8001/stt/file
-```
-
-### 2. 音声データのバイト列からの文字起こし
-
-**エンドポイント**: `/stt/bytes`  
-**メソッド**: POST  
-**パラメータ**:
-- リクエストボディ: 音声データのバイト列
-- `language`: 言語（デフォルト: "japanese"）
-
-**使用例**:
-```bash
-curl -X POST --data-binary @audio.raw -H "Content-Type: application/octet-stream" http://localhost:8001/stt/bytes
-```
-
-## 注意事項
-
-- 初回起動時は、Whisperモデルのダウンロードに時間がかかる場合があります
-- GPUを使用する場合は、追加の設定が必要です
-- 音声ファイルは16kHzのサンプリングレートで処理されます
