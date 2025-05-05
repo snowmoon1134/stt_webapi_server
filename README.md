@@ -7,6 +7,9 @@ https://github.com/nyosegawa/local-simple-realtime-api の `server_stt.py` を�
 - dockerビルド時に、特定のSTTモデルファイルをダウンロードするスクリプトを追加
     - これにより、docker run するとすぐSTTサーバが立ち上がります
 
+## Base Repository
+[nyosegawa/local-simple-realtime-api の2024/10/29時点のmainブランチ](https://github.com/nyosegawa/local-simple-realtime-api/commit/97db84c29b1255042e8f41d163d1f0817d5f743a#diff-01b03cb00e1bf2ed3f4dd9276a6605f0dfdbe89a99889a50228e3ec12376228a)の`server_stt.py`をベースとしています
+
 ## 機能
 - 音声ファイルからの文字起こし（`/stt/file`エンドポイント）
 - 音声データのバイト列からの文字起こし（`/stt/bytes`エンドポイント）
