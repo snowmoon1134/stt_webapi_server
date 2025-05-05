@@ -1,0 +1,17 @@
+[project]
+name = "stt_webapi_server"
+version = "0.1.0"
+description = "Speech-to-Text Web API Server using Whisper"
+authors = [{ name = "hoge", email = "your.email@example.com"}]
+requires-python = ">=3.8"
+readme = "README.md"
+
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "transformers>=4.37.0",
+    "torch>=2.2.0",
+    "numpy>=1.26.0",
+    "librosa>=0.10.1",
+    "python-multipart>=0.0.6"
+]
