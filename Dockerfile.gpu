@@ -1,5 +1,6 @@
-# Python 3.10をベースイメージとして使用
-FROM python:3.10-slim
+# cuda対応版のpytorchイメージを使用
+# cudaのバージョンは、`nvidia-smi`コマンドで確認して揃えてください
+FROM pytorch/pytorch:2.7.0-cuda12.6-cudnn9-runtime
 
 # 必要なシステムパッケージをインストール
 RUN apt-get update && apt-get install -y \
@@ -23,12 +24,17 @@ COPY pyproject.toml ./
 # 依存関係をインストール
 RUN uv pip install --no-cache-dir -e .
 
-# モデルの事前ダウンロードを実行
-COPY model_downloader model_downloader
-RUN python model_downloader/pre_download.py
+# CUDA関連設定
+ENV CUDA_VISIBLE_DEVICES 0
+ENV MKL_SERVICE_FORCE_INTEL 1
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/conda/lib/python3.10/site-packages/nvidia/cublas/lib:/opt/conda/lib/python3.10/site-packages/nvidia/cudnn/lib:/opt/conda/lib/python3.10/site-packages/torch/lib
 
 # アプリケーションのソースコードをコピー
 COPY app/ ./app/
+
+# モデルの事前ダウンロードを実行
+COPY model_downloader model_downloader
+RUN python model_downloader/pre_download.py
 
 # ポート8001を公開
 EXPOSE 8001
